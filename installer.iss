@@ -1,11 +1,10 @@
-; Inno Setup Script for Glass Reminder
 #define MyAppName "Glass Reminder"
 #define MyAppVersion "2.0.0"
 #define MyAppPublisher "Glass Reminder Team"
 #define MyAppExeName "GlassReminder.exe"
 
 [Setup]
-AppId={{8F932D10-4A9B-4C92-A234-92A5123985F1}
+AppId={8F932D10-4A9B-4C92-A234-92A5123985F1}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
