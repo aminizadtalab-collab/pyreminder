@@ -18,22 +18,21 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install Dependencies
+    - name: Install Python Dependencies
       run: |
         python -m pip install --upgrade pip
         pip install PyQt6 PyQt6-QtSvg pyinstaller
 
     - name: Build Executable with PyInstaller
       run: |
-        pyinstaller --noconsole --onefile --name "GlassReminder" main.py
+        pyinstaller --noconsole --onefile --collect-all PyQt6 --name "GlassReminder" main.py
 
-    - name: Install Inno Setup
-      run: |
-        choco install innosetup --no-progress -y
+    - name: Setup Inno Setup
+      uses: setup-innosetup/setup-innosetup@v2
 
     - name: Compile Inno Setup Script
       run: |
-        & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+        iscc installer.iss
 
     - name: Upload Setup.exe Artifact
       uses: actions/upload-artifact@v4
