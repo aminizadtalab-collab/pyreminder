@@ -1,4 +1,4 @@
-name: Build Windows & Linux Installers
+name: Build Windows Setup
 
 on:
   push:
@@ -23,17 +23,20 @@ jobs:
         python -m pip install --upgrade pip
         pip install PyQt6 PyQt6-QtSvg pyinstaller
 
-    - name: Build Standalone Executable
+    - name: Build Executable with PyInstaller
       run: |
         pyinstaller --noconsole --onefile --name "GlassReminder" main.py
 
-    - name: Download & Run Inno Setup (Create Setup Wizard)
+    - name: Install Inno Setup
       run: |
-        choco install innosetup -y
-        iscc installer.iss
+        choco install innosetup --no-progress -y
 
-    - name: Upload Windows Setup.exe
+    - name: Compile Inno Setup Script
+      run: |
+        & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+
+    - name: Upload Setup.exe Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: GlassReminder-Windows-Installer
+        name: GlassReminder-Windows-Setup
         path: Output/GlassReminder-Setup.exe
