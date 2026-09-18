@@ -1,9 +1,9 @@
 """
-صفحه تنظیمات با آیکون SVG یکپارچه
+صفحه تنظیمات (کاملاً سازگار با ویندوز و لینوکس)
 """
 import os
 import sys
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QCheckBox, QSpinBox, QMessageBox
@@ -91,7 +91,7 @@ class SettingsPage(QWidget):
         about_lbl = QLabel(
             "Glass Reminder v2.0\n"
             "یادآور شیشه‌ای مدرن با طراحی Glassmorphism\n"
-            "طراحی‌شده برای لینوکس"
+            "طراحی‌شده برای لینوکس و ویندوز"
         )
         about_lbl.setStyleSheet("color: #a0a0b8; padding: 8px 0;")
         about_card.layout().addWidget(about_lbl)
@@ -127,24 +127,45 @@ class SettingsPage(QWidget):
         enabled = self.startup_check.isChecked()
         self.dm.update_setting("startup", enabled)
 
-        autostart_dir = os.path.expanduser("~/.config/autostart")
-        desktop_file = os.path.join(autostart_dir, "glass-reminder.desktop")
-
-        if enabled:
-            os.makedirs(autostart_dir, exist_ok=True)
-            main_script = os.path.abspath(sys.argv[0])
-            with open(desktop_file, "w") as f:
-                f.write(
-                    "[Desktop Entry]\n"
-                    "Type=Application\n"
-                    "Name=Glass Reminder\n"
-                    f"Exec=python3 {main_script}\n"
-                    "Hidden=false\n"
-                    "X-GNOME-Autostart-enabled=true\n"
-                )
+        if sys.platform == "win32":
+            # ویندوز: قرار دادن اسکریپت لودر در پوشه Startup ویندوز
+            startup_dir = os.path.join(
+                os.environ.get("APPDATA", ""),
+                r"Microsoft\Windows\Start Menu\Programs\Startup"
+            )
+            bat_file = os.path.join(startup_dir, "glass-reminder.bat")
+            if enabled:
+                main_script = os.path.abspath(sys.argv[0])
+                # اجرای مخفی بدون باز شدن ترمینال مشکی (با pythonw یا مستقیم از exe)
+                if main_script.endswith(".exe"):
+                    with open(bat_file, "w", encoding="utf-8") as f:
+                        f.write(f'@start "" "{main_script}"\n')
+                else:
+                    with open(bat_file, "w", encoding="utf-8") as f:
+                        f.write(f'@start "" pythonw "{main_script}"\n')
+            else:
+                if os.path.exists(bat_file):
+                    os.remove(bat_file)
         else:
-            if os.path.exists(desktop_file):
-                os.remove(desktop_file)
+            # لینوکس
+            autostart_dir = os.path.expanduser("~/.config/autostart")
+            desktop_file = os.path.join(autostart_dir, "glass-reminder.desktop")
+
+            if enabled:
+                os.makedirs(autostart_dir, exist_ok=True)
+                main_script = os.path.abspath(sys.argv[0])
+                with open(desktop_file, "w") as f:
+                    f.write(
+                        "[Desktop Entry]\n"
+                        "Type=Application\n"
+                        "Name=Glass Reminder\n"
+                        f"Exec=python3 {main_script}\n"
+                        "Hidden=false\n"
+                        "X-GNOME-Autostart-enabled=true\n"
+                    )
+            else:
+                if os.path.exists(desktop_file):
+                    os.remove(desktop_file)
 
     def _clear_done(self):
         reply = QMessageBox.question(
@@ -160,7 +181,7 @@ class SettingsPage(QWidget):
     def _clear_all(self):
         reply = QMessageBox.question(
             self, "هشدار",
-            "همه یادآورها برای همیشه حذف می‌شوند. مطمئن هستید؟",
+            "⚠️ همه یادآورها برای همیشه حذف می‌شوند. مطمئن هستید؟",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
         if reply == QMessageBox.StandardButton.Yes:
