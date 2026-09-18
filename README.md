@@ -41,3 +41,8 @@ git clone https://github.com/YOUR_USERNAME/GlassFlow.git
 cd GlassFlow
 chmod +x install.sh
 ./install.sh
+
+
+## ⚡ Quick Uninstallation (One-Liner)
+chmod +x uninstall.sh
+./uninstall.sh

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================
-#   Glass Reminder v2.0 - Installer
+#   Glass Reminder v2.0 - Installer (Fixed)
 #   طراحی Glassmorphism برای لینوکس
 # ============================================
 
@@ -39,8 +39,9 @@ echo -e "\n${BLUE}📦 در حال نصب پیش‌نیازها...${NC}"
 
 install_deps_debian() {
     sudo apt update
+    # اضافه شدن python3-pyqt6.qtsvg برای حل خطای رندر آیکون‌های SVG
     sudo apt install -y \
-        python3 python3-pip python3-pyqt6 \
+        python3 python3-pip python3-pyqt6 python3-pyqt6.qtsvg \
         libnotify-bin pulseaudio-utils \
         fonts-inter || sudo apt install -y fonts-noto
 }
@@ -75,7 +76,7 @@ case $DISTRO in
         ;;
 esac
 
-# fallback با pip اگر PyQt6 سیستمی موجود نبود
+# fallback با pip در صورتی که PyQt6 سیستمی به هر دلیلی کار نکند
 if ! python3 -c "import PyQt6" 2>/dev/null; then
     echo -e "${YELLOW}📥 نصب PyQt6 با pip...${NC}"
     pip3 install --user --break-system-packages PyQt6 2>/dev/null \
@@ -95,7 +96,7 @@ fi
 
 chmod +x "$APP_DIR/main.py"
 
-# ============== ساخت .desktop ==============
+# ============== ساخت فایل دسکتاپ (.desktop) ==============
 DESKTOP_DIR="$HOME/.local/share/applications"
 DESKTOP_FILE="$DESKTOP_DIR/glass-reminder.desktop"
 mkdir -p "$DESKTOP_DIR"
@@ -130,7 +131,7 @@ EOF
 
 chmod +x "$BIN_DIR/glass-reminder"
 
-# ============== بروزرسانی دیتابیس ==============
+# ============== بروزرسانی دیتابیس دسکتاپ ==============
 if command -v update-desktop-database &> /dev/null; then
     update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true
 fi
