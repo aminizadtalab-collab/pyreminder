@@ -27,8 +27,16 @@ jobs:
       run: |
         pyinstaller --noconsole --onefile --collect-all PyQt6 --name "GlassReminder" main.py
 
-    - name: Setup Inno Setup
-      uses: setup-innosetup/setup-innosetup@v2
+    - name: Install Inno Setup
+      shell: powershell
+      run: |
+        choco install innosetup --no-progress -y
+        if (Test-Path "C:\Program Files (x86)\Inno Setup 6") {
+            "C:\Program Files (x86)\Inno Setup 6" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        }
+        if (Test-Path "C:\Program Files\Inno Setup 6") {
+            "C:\Program Files\Inno Setup 6" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        }
 
     - name: Compile Inno Setup Script
       run: |
