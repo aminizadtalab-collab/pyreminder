@@ -18,31 +18,20 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install Python Dependencies
+    - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
         pip install PyQt6 PyQt6-QtSvg pyinstaller
 
     - name: Build Executable with PyInstaller
       run: |
-        pyinstaller --noconsole --onefile --collect-all PyQt6 --name "GlassReminder" main.py
+        pyinstaller --noconsole --onefile --name "GlassReminder" main.py
 
-    - name: Install Inno Setup
-      shell: powershell
+    - name: Build Setup Wizard with Inno Setup
       run: |
-        choco install innosetup --no-progress -y
-        if (Test-Path "C:\Program Files (x86)\Inno Setup 6") {
-            "C:\Program Files (x86)\Inno Setup 6" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        }
-        if (Test-Path "C:\Program Files\Inno Setup 6") {
-            "C:\Program Files\Inno Setup 6" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-        }
+        & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 
-    - name: Compile Inno Setup Script
-      run: |
-        iscc installer.iss
-
-    - name: Upload Setup.exe Artifact
+    - name: Upload Windows Setup
       uses: actions/upload-artifact@v4
       with:
         name: GlassReminder-Windows-Setup
